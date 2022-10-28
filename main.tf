@@ -1,14 +1,14 @@
 terraform {
   required_providers {
     azurerm = {
-      source = "hashicorp/azurerm"
+      source  = "hashicorp/azurerm"
       version = "3.28.0"
     }
   }
 }
 
-provider "azurerm" { 
-    features {} 
+provider "azurerm" {
+  features {}
 }
 
 # Resource Group 
@@ -32,8 +32,8 @@ resource "azurerm_subnet" "internal" {
 }
 
 resource "azurerm_network_interface" "main" {
-  count               = "${length(var.name_servers)}"  
-  name                = "${var.prefix}-nic-${count.index+1}"
+  count               = length(var.name_servers)
+  name                = "${var.prefix}-nic-${count.index + 1}"
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
 
@@ -45,12 +45,12 @@ resource "azurerm_network_interface" "main" {
 }
 
 resource "azurerm_virtual_machine" "main" {
-  count                 = "${length(var.name_servers)}"
-  name                  = "${var.prefix}-vm-${count.index+1}"
+  count                 = length(var.name_servers)
+  name                  = "${var.prefix}-vm-${count.index + 1}"
   location              = azurerm_resource_group.example.location
   resource_group_name   = azurerm_resource_group.example.name
-  network_interface_ids = [ "${element(azurerm_network_interface.main.*.id, count.index)}"]
-  vm_size               = "Standard_DS1_v2"
+  network_interface_ids = ["${element(azurerm_network_interface.main.*.id, count.index)}"]
+  vm_size               = "${var.machine_type["prod"]}"
 
   # Uncomment this line to delete the OS disk automatically when deleting the VM
   delete_os_disk_on_termination = true
@@ -65,7 +65,7 @@ resource "azurerm_virtual_machine" "main" {
     version   = "latest"
   }
   storage_os_disk {
-    name              = "myosdisk1-${count.index+1}"
+    name              = "myosdisk1-${count.index + 1}"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
